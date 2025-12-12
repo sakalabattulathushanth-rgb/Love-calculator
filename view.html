@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Love Results – Table View</title>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #ff4d79, #ff0066);
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .table-container {
+      background: white;
+      color: black;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0px 0px 20px rgba(255,255,255,0.4);
+      max-width: 900px;
+      margin: auto;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 16px;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background: #ff0066;
+      color: white;
+    }
+
+    tr:hover {
+      background: #ffe6f0;
+    }
+
+    .back-btn {
+      display: block;
+      margin: 20px auto;
+      text-align: center;
+      background: white;
+      padding: 10px 20px;
+      width: 150px;
+      border-radius: 10px;
+      color: #ff0066;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0px 0px 10px rgba(255,255,255,0.5);
+    }
+
+  </style>
+</head>
+<body>
+
+<h1>❤️ All Love Results ❤️</h1>
+
+<a href="index.html" class="back-btn">← Back</a>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Your Name</th>
+        <th>Crush Name</th>
+        <th>Percentage</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody id="dataTable">
+      <!-- Firebase data will load here -->
+    </tbody>
+  </table>
+</div>
+
+
+<script type="module">
+  // Firebase imports
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import { getFirestore, collection, getDocs }
+    from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+  // Your Firebase config (same as index.html)
+  const firebaseConfig = {
+    apiKey: "AIzaSyAY-BopDJR61K5v3gXOvWkq93igd_IOzuI",
+    authDomain: "lovecalculatordb-456eb.firebaseapp.com",
+    projectId: "lovecalculatordb-456eb",
+    storageBucket: "lovecalculatordb-456eb.firebasestorage.app",
+    messagingSenderId: "482817369886",
+    appId: "1:482817369886:web:a0712ca493d83aeff2cb0f",
+    measurementId: "G-43V5DXL1S5"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function loadData() {
+    const tableBody = document.getElementById("dataTable");
+
+    // Get all docs from loveData
+    const querySnapshot = await getDocs(collection(db, "loveData"));
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${data.yourName}</td>
+        <td>${data.crushName}</td>
+        <td>${data.percentage}%</td>
+        <td>${new Date(data.timestamp.seconds * 1000).toLocaleString()}</td>
+      `;
+      tableBody.appendChild(tr);
+    });
+  }
+
+  loadData();
+</script>
+
+</body>
+</html>
