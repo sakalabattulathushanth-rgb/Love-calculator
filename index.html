@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Love Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,25 +15,27 @@
       justify-content: center;
       margin: 0;
       overflow: hidden;
+      padding: 0;
     }
 
     /* Floating Hearts Animation */
     .heart {
       position: absolute;
-      color: rgba(255,255,255,0.8);
-      font-size: 20px;
+      color: rgba(255,255,255,0.85);
       animation: floatUp 5s linear infinite;
     }
 
     @keyframes floatUp {
       0% { transform: translateY(0) scale(1); opacity: 1; }
-      100% { transform: translateY(-800px) scale(1.5); opacity: 0; }
+      100% { transform: translateY(-800px) scale(1.6); opacity: 0; }
     }
 
+    /* Main container */
     .container {
       background: white;
-      width: 350px;
-      padding: 25px;
+      width: 90%;
+      max-width: 380px;
+      padding: 20px;
       border-radius: 20px;
       text-align: center;
       box-shadow: 0px 0px 20px rgba(255,0,80,0.6);
@@ -39,8 +43,8 @@
     }
 
     input {
-      width: 90%;
-      padding: 10px;
+      width: 100%;
+      padding: 12px;
       margin: 10px 0;
       border-radius: 10px;
       border: 1px solid #ccc;
@@ -49,7 +53,7 @@
 
     button {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       background: #ff0066;
       border: none;
       border-radius: 12px;
@@ -64,7 +68,7 @@
 
     #resultBox {
       margin-top: 20px;
-      font-size: 22px;
+      font-size: 20px;
       font-weight: bold;
       display: none;
       animation: pop 0.5s ease;
@@ -74,14 +78,48 @@
       0% { transform: scale(0.5); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
+
+    /* Mobile Responsive */
+    @media (max-width: 480px) {
+      .container {
+        padding: 18px;
+        width: 92%;
+        border-radius: 16px;
+      }
+
+      input {
+        font-size: 15px;
+        padding: 11px;
+      }
+
+      button {
+        font-size: 17px;
+        padding: 13px;
+      }
+
+      #resultBox {
+        font-size: 18px;
+      }
+
+      h2 {
+        font-size: 22px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      h2 { font-size: 20px; }
+      button { font-size: 16px; }
+      input { font-size: 14px; }
+    }
   </style>
 </head>
 
 <body>
 
-<!-- Floating Hearts Container -->
+<!-- Floating Hearts -->
 <div id="hearts"></div>
 
+<!-- Calculator Box -->
 <div class="container">
   <h2>❤️ Love Calculator ❤️</h2>
 
@@ -93,14 +131,15 @@
   <div id="resultBox"></div>
 </div>
 
+<!-- Firebase + Main Logic -->
 <script type="module">
 
-  // Firebase imports
+  // Firebase SDK imports
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-  import { getFirestore, addDoc, collection } 
+  import { getFirestore, addDoc, collection }
     from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-  // Your Firebase config
+  // Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyAY-BopDJR61K5v3gXOvWkq93igd_IOzuI",
     authDomain: "lovecalculatordb-456eb.firebaseapp.com",
@@ -115,7 +154,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Floating heart generator
+  // Floating Heart Generator
   function createHeart() {
     const heart = document.createElement("div");
     heart.classList.add("heart");
@@ -126,32 +165,31 @@
 
     setTimeout(() => heart.remove(), 5000);
   }
-
   setInterval(createHeart, 400);
 
-  // Love calculator function
+  // MAIN LOVE FUNCTION
   async function calculateLove() {
-    const yourName = document.getElementById('yourName').value;
-    const crushName = document.getElementById('crushName').value;
+    const yourName = document.getElementById("yourName").value.trim();
+    const crushName = document.getElementById("crushName").value.trim();
 
     if (!yourName || !crushName) {
       alert("Enter both names!");
       return;
     }
 
-    // Generate random % (different for different names)
+    // Random love percentage
     const lovePercent = Math.floor(Math.random() * 101);
 
     // Show result
     const resultBox = document.getElementById("resultBox");
     resultBox.style.display = "block";
-    resultBox.innerHTML = `❤️ ${crushName} loves ${yourName}: <br><br> <b>${lovePercent}%</b> ❤️`;
+    resultBox.innerHTML = `❤️ ${crushName} loves ${yourName}: <br><br><b>${lovePercent}%</b> ❤️`;
 
     // Save to Firestore
     try {
       await addDoc(collection(db, "loveData"), {
-        yourName: yourName,
-        crushName: crushName,
+        yourName,
+        crushName,
         percentage: lovePercent,
         timestamp: new Date()
       });
@@ -160,6 +198,9 @@
       console.error("Error saving data:", e);
     }
   }
+
+  // Expose function globally (fix for HTML button)
+  window.calculateLove = calculateLove;
 
 </script>
 
