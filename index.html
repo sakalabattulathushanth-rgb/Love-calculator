@@ -18,7 +18,6 @@
       padding: 0;
     }
 
-    /* Floating Hearts Animation */
     .heart {
       position: absolute;
       color: rgba(255,255,255,0.85);
@@ -30,7 +29,6 @@
       100% { transform: translateY(-800px) scale(1.6); opacity: 0; }
     }
 
-    /* Main container */
     .container {
       background: white;
       width: 90%;
@@ -79,31 +77,16 @@
       100% { transform: scale(1); opacity: 1; }
     }
 
-    /* Mobile Responsive */
     @media (max-width: 480px) {
       .container {
         padding: 18px;
         width: 92%;
         border-radius: 16px;
       }
-
-      input {
-        font-size: 15px;
-        padding: 11px;
-      }
-
-      button {
-        font-size: 17px;
-        padding: 13px;
-      }
-
-      #resultBox {
-        font-size: 18px;
-      }
-
-      h2 {
-        font-size: 22px;
-      }
+      input { font-size: 15px; padding: 11px; }
+      button { font-size: 17px; padding: 13px; }
+      #resultBox { font-size: 18px; }
+      h2 { font-size: 22px; }
     }
 
     @media (max-width: 360px) {
@@ -116,10 +99,8 @@
 
 <body>
 
-<!-- Floating Hearts -->
 <div id="hearts"></div>
 
-<!-- Calculator Box -->
 <div class="container">
   <h2>❤️ Love Calculator ❤️</h2>
 
@@ -131,15 +112,11 @@
   <div id="resultBox"></div>
 </div>
 
-<!-- Firebase + Main Logic -->
 <script type="module">
-
-  // Firebase SDK imports
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
   import { getFirestore, addDoc, collection }
     from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-  // Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyAY-BopDJR61K5v3gXOvWkq93igd_IOzuI",
     authDomain: "lovecalculatordb-456eb.firebaseapp.com",
@@ -150,11 +127,9 @@
     measurementId: "G-43V5DXL1S5"
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Floating Heart Generator
   function createHeart() {
     const heart = document.createElement("div");
     heart.classList.add("heart");
@@ -162,12 +137,20 @@
     heart.style.left = Math.random() * 100 + "%";
     heart.style.fontSize = (Math.random() * 20 + 15) + "px";
     document.getElementById("hearts").appendChild(heart);
-
     setTimeout(() => heart.remove(), 5000);
   }
   setInterval(createHeart, 400);
 
-  // MAIN LOVE FUNCTION
+  // SAME NAME = SAME RESULT (Hash generator)
+  function generateSamePercent(name1, name2) {
+    const combo = (name1 + name2).toLowerCase().replace(/\s+/g, "");
+    let hash = 0;
+    for (let i = 0; i < combo.length; i++) {
+      hash = (hash * 31 + combo.charCodeAt(i)) % 101;
+    }
+    return hash;
+  }
+
   async function calculateLove() {
     const yourName = document.getElementById("yourName").value.trim();
     const crushName = document.getElementById("crushName").value.trim();
@@ -177,15 +160,12 @@
       return;
     }
 
-    // Random love percentage
-    const lovePercent = Math.floor(Math.random() * 101);
+    const lovePercent = generateSamePercent(yourName, crushName);
 
-    // Show result
     const resultBox = document.getElementById("resultBox");
     resultBox.style.display = "block";
     resultBox.innerHTML = `❤️ ${crushName} loves ${yourName}: <br><br><b>${lovePercent}%</b> ❤️`;
 
-    // Save to Firestore
     try {
       await addDoc(collection(db, "loveData"), {
         yourName,
@@ -193,13 +173,12 @@
         percentage: lovePercent,
         timestamp: new Date()
       });
-      console.log("Saved to Firebase!");
+      console.log("Saved!");
     } catch (e) {
-      console.error("Error saving data:", e);
+      console.error("Save error:", e);
     }
   }
 
-  // Expose function globally (fix for HTML button)
   window.calculateLove = calculateLove;
 
 </script>
