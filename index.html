@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Love Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff4d79, #ff0066);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    /* Floating Hearts Animation */
+    .heart {
+      position: absolute;
+      color: rgba(255,255,255,0.8);
+      font-size: 20px;
+      animation: floatUp 5s linear infinite;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-800px) scale(1.5); opacity: 0; }
+    }
+
+    .container {
+      background: white;
+      width: 350px;
+      padding: 25px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0px 0px 20px rgba(255,0,80,0.6);
+      z-index: 10;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #ff0066;
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #cc0052;
+    }
+
+    #resultBox {
+      margin-top: 20px;
+      font-size: 22px;
+      font-weight: bold;
+      display: none;
+      animation: pop 0.5s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Floating Hearts Container -->
+<div id="hearts"></div>
+
+<div class="container">
+  <h2>❤️ Love Calculator ❤️</h2>
+
+  <input type="text" id="yourName" placeholder="Your Full Name">
+  <input type="text" id="crushName" placeholder="Crush Full Name">
+
+  <button onclick="calculateLove()">Calculate</button>
+
+  <div id="resultBox"></div>
+</div>
+
+<script type="module">
+
+  // Firebase imports
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import { getFirestore, addDoc, collection } 
+    from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyAY-BopDJR61K5v3gXOvWkq93igd_IOzuI",
+    authDomain: "lovecalculatordb-456eb.firebaseapp.com",
+    projectId: "lovecalculatordb-456eb",
+    storageBucket: "lovecalculatordb-456eb.firebasestorage.app",
+    messagingSenderId: "482817369886",
+    appId: "1:482817369886:web:a0712ca493d83aeff2cb0f",
+    measurementId: "G-43V5DXL1S5"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Floating heart generator
+  function createHeart() {
+    const heart = document.createElement("div");
+    heart.classList.add("heart");
+    heart.innerHTML = "❤️";
+    heart.style.left = Math.random() * 100 + "%";
+    heart.style.fontSize = (Math.random() * 20 + 15) + "px";
+    document.getElementById("hearts").appendChild(heart);
+
+    setTimeout(() => heart.remove(), 5000);
+  }
+
+  setInterval(createHeart, 400);
+
+  // Love calculator function
+  async function calculateLove() {
+    const yourName = document.getElementById('yourName').value;
+    const crushName = document.getElementById('crushName').value;
+
+    if (!yourName || !crushName) {
+      alert("Enter both names!");
+      return;
+    }
+
+    // Generate random % (different for different names)
+    const lovePercent = Math.floor(Math.random() * 101);
+
+    // Show result
+    const resultBox = document.getElementById("resultBox");
+    resultBox.style.display = "block";
+    resultBox.innerHTML = `❤️ ${crushName} loves ${yourName}: <br><br> <b>${lovePercent}%</b> ❤️`;
+
+    // Save to Firestore
+    try {
+      await addDoc(collection(db, "loveData"), {
+        yourName: yourName,
+        crushName: crushName,
+        percentage: lovePercent,
+        timestamp: new Date()
+      });
+      console.log("Saved to Firebase!");
+    } catch (e) {
+      console.error("Error saving data:", e);
+    }
+  }
+
+</script>
+
+</body>
+</html>
